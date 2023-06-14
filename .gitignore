@@ -97,3 +97,4 @@ fabric.properties
 /.idea/rust-developer.iml
 /.idea/vcs.xml
 /HW
+.DS_Store
