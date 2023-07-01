@@ -1,6 +1,6 @@
-use rust_developer::{BorrowingDeviceInfoProvider, OwningDeviceInfoProvider};
 use rust_developer::device_providers::{SmartSocket, SmartThermometer};
 use rust_developer::smart_home::SmartHouse;
+use rust_developer::{BorrowingDeviceInfoProvider, OwningDeviceInfoProvider};
 
 fn main() {
     let socket1 = SmartSocket {};

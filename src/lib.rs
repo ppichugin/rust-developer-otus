@@ -1,6 +1,6 @@
-use Devices::*;
 use crate::device_providers::{SmartSocket, SmartThermometer};
 use crate::smart_home::DeviceInfoProvider;
+use Devices::*;
 
 #[derive(Debug, Clone)]
 pub enum Devices {
@@ -41,8 +41,8 @@ pub mod smart_home {
         }
 
         pub fn create_report<T>(&self, info_provider: &T) -> String
-            where
-                T: DeviceInfoProvider,
+        where
+            T: DeviceInfoProvider,
         {
             let mut report = String::new();
             for room in &self.rooms {
@@ -80,9 +80,9 @@ pub mod smart_home {
 }
 
 pub mod device_providers {
+    use super::smart_home::DeviceInfoProvider;
     use crate::Devices;
     use crate::Devices::*;
-    use super::smart_home::DeviceInfoProvider;
 
     pub struct SmartSocket {}
 
