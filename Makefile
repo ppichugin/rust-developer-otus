@@ -1,5 +1,5 @@
 archive:
-	tar -czvf "HW/HW03_$$(date +"%Y-%m-%d_%H-%M").tar.gz" --exclude='target' --exclude='.git' --exclude='.idea' --exclude='HW' --same-permissions .
+	tar -czvf "HW/HW04_$$(date +"%Y-%m-%d_%H-%M").tar.gz" --exclude='target' --exclude='.git' --exclude='.idea' --exclude='HW' --same-permissions .
 
 clean:
 	cargo clean

@@ -1,32 +1,16 @@
-use crate::device_providers::{SmartSocket, SmartThermometer};
-use crate::smart_home::DeviceInfoProvider;
-use Devices::*;
-
-#[derive(Debug, Clone)]
-pub enum Devices {
-    TV,
-    Lights,
-    Oven,
-    Microwave,
-    Thermometer,
-}
+pub mod devices;
 
 pub mod smart_home {
-    use crate::Devices;
-    use crate::Devices::*;
+    use crate::devices::Devices::*;
+    use crate::devices::{DeviceInfoProvider, Devices};
 
     pub struct SmartHouse {
+        pub(crate) name: String,
         rooms: Vec<Room>,
     }
 
-    impl Default for SmartHouse {
-        fn default() -> Self {
-            Self::new()
-        }
-    }
-
     impl SmartHouse {
-        pub fn new() -> Self {
+        pub fn new(name: &str) -> Self {
             let rooms = vec![
                 Room {
                     name: String::from("Living Room"),
@@ -37,7 +21,26 @@ pub mod smart_home {
                     devices: vec![Oven, Microwave],
                 },
             ];
-            SmartHouse { rooms }
+            SmartHouse {
+                name: name.to_string(),
+                rooms,
+            }
+        }
+
+        pub fn get_rooms(&self) -> [&str; 2] {
+            self.rooms
+                .iter()
+                .map(|r| r.name.as_str())
+                .collect::<Vec<&str>>()
+                .try_into()
+                .unwrap()
+        }
+
+        pub fn devices(&self, room: &str) -> Option<Vec<Devices>> {
+            self.rooms
+                .iter()
+                .find(|r| r.name == room)
+                .map(|r| r.devices.clone())
         }
 
         pub fn create_report<T>(&self, info_provider: &T) -> String
@@ -45,11 +48,14 @@ pub mod smart_home {
             T: DeviceInfoProvider,
         {
             let mut report = String::new();
-            for room in &self.rooms {
-                report += &format!("Room: {}\n", room.name);
-                if let Some(devices) = self.devices(&room.name) {
+            report += &format!("Report for house: {}\n", self.name);
+            report += &format!("Rooms total: {:?}\n", self.get_rooms().len());
+
+            self.get_rooms().iter().for_each(|r| {
+                report += &format!("Room: {}\n", r);
+                if let Some(devices) = self.devices(r) {
                     for device in devices {
-                        let device_info = info_provider.device_info(&room.name, &device);
+                        let device_info = info_provider.device_info(r, &device);
                         match device_info {
                             Some(info) => report += &format!(" - {:?}: {:?}\n", device, info),
                             None => report += &format!(" - {:?}: Device not found\n", device),
@@ -57,15 +63,8 @@ pub mod smart_home {
                     }
                 }
                 report += "\n";
-            }
+            });
             report
-        }
-
-        fn devices(&self, room: &str) -> Option<Vec<Devices>> {
-            self.rooms
-                .iter()
-                .find(|r| r.name == room)
-                .map(|r| r.devices.clone())
         }
     }
 
@@ -73,66 +72,54 @@ pub mod smart_home {
         name: String,
         devices: Vec<Devices>,
     }
-
-    pub trait DeviceInfoProvider {
-        fn device_info(&self, room: &str, device: &Devices) -> Option<String>;
-    }
 }
 
-pub mod device_providers {
-    use super::smart_home::DeviceInfoProvider;
-    use crate::Devices;
-    use crate::Devices::*;
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::devices::Devices;
+    use smart_home::SmartHouse;
 
-    pub struct SmartSocket {}
-
-    impl DeviceInfoProvider for SmartSocket {
-        fn device_info(&self, _room: &str, device: &Devices) -> Option<String> {
-            match device {
-                TV => Some("Power: On".to_string()),
-                Lights => Some("Brightness: 80%".to_string()),
-                Oven => Some("Power: 2000W".to_string()),
-                Microwave => Some("Power: 800W".to_string()),
-                _ => None,
-            }
-        }
+    #[test]
+    fn get_new_house() {
+        let house = SmartHouse::new("My House");
+        assert_eq!(house.name, "My House");
     }
 
-    pub struct SmartThermometer {}
-
-    impl DeviceInfoProvider for SmartThermometer {
-        fn device_info(&self, _room: &str, device: &Devices) -> Option<String> {
-            match device {
-                Thermometer => Some("Temperature: 20C".to_string()),
-                _ => None,
-            }
-        }
+    #[test]
+    fn house_get_rooms() {
+        let house = SmartHouse::new("My House");
+        assert_eq!(house.get_rooms(), ["Living Room", "Kitchen"]);
     }
-}
 
-pub struct OwningDeviceInfoProvider {
-    pub socket: SmartSocket,
-}
-
-impl DeviceInfoProvider for OwningDeviceInfoProvider {
-    fn device_info(&self, room: &str, device: &Devices) -> Option<String> {
-        match device {
-            TV | Lights | Oven | Microwave => self.socket.device_info(room, device),
-            _ => None,
-        }
+    #[test]
+    fn house_get_devices() {
+        let house = SmartHouse::new("My House");
+        assert_eq!(
+            house.devices("Living Room"),
+            Some(vec![Devices::TV, Devices::Lights, Devices::Thermometer])
+        );
+        assert_eq!(
+            house.devices("Kitchen"),
+            Some(vec![Devices::Oven, Devices::Microwave])
+        );
+        assert_eq!(house.devices("Bedroom"), None);
     }
-}
 
-pub struct BorrowingDeviceInfoProvider<'a, 'b> {
-    pub socket: &'a SmartSocket,
-    pub thermo: &'b SmartThermometer,
-}
-
-impl<'a, 'b> DeviceInfoProvider for BorrowingDeviceInfoProvider<'a, 'b> {
-    fn device_info(&self, room: &str, device: &Devices) -> Option<String> {
-        match device {
-            TV | Lights | Oven | Microwave => self.socket.device_info(room, device),
-            Thermometer => self.thermo.device_info(room, device),
-        }
+    #[test]
+    fn house_create_report() {
+        let house = SmartHouse::new("My House");
+        let socket = devices::SmartSocket {};
+        let thermo = devices::SmartThermometer {};
+        let report = house.create_report(&socket);
+        assert_eq!(
+            report,
+            "Report for house: My House\nRooms total: 2\nRoom: Living Room\n - TV: \"Power: On\"\n - Lights: \"Brightness: 80%\"\n - Thermometer: Device not found\n\nRoom: Kitchen\n - Oven: \"Power: 2000W\"\n - Microwave: \"Power: 800W\"\n\n"
+        );
+        let report = house.create_report(&thermo);
+        assert_eq!(
+            report,
+            "Report for house: My House\nRooms total: 2\nRoom: Living Room\n - TV: Device not found\n - Lights: Device not found\n - Thermometer: \"Temperature: 20C\"\n\nRoom: Kitchen\n - Oven: Device not found\n - Microwave: Device not found\n\n"
+        );
     }
 }
