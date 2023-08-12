@@ -126,29 +126,3 @@ impl DeviceInfoProvider for OwningDeviceInfoProvider {
         }
     }
 }
-
-pub struct BorrowingDeviceInfoProvider<'a, 'b> {
-    pub socket: &'a SmartSocket,
-    pub thermo: &'b SmartThermometer,
-}
-
-impl<'a, 'b> DeviceInfoProvider for BorrowingDeviceInfoProvider<'a, 'b> {
-    fn device_info(
-        &self,
-        _room: &str,
-        device: &Devices,
-        _behavior: &DeviceBehavior,
-        _state: &DeviceState,
-    ) -> Option<String> {
-        match device {
-            Devices::TV { power } => Some(format!("Power: {}", if *power { "On" } else { "Off" })),
-            Devices::Lights { brightness } => Some(format!("Brightness: {}%", brightness)),
-            Devices::Oven { power } => Some(format!("Power: {}W", power)),
-            Devices::Microwave { power } => Some(format!("Power: {}W", power)),
-            Devices::Thermometer { temperature } => Some(format!("Temperature: {}C", temperature)),
-            Devices::Custom(name, behavior, state) => {
-                Some(format!("{} is {} and {:?}", name, state, behavior))
-            }
-        }
-    }
-}

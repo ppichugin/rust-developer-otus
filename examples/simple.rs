@@ -1,14 +1,11 @@
 use smart_house::devices::{
-    BorrowingDeviceInfoProvider, DeviceBehavior, DeviceState, Devices, SmartSocket,
-    SmartThermometer,
+    DeviceBehavior, DeviceState, Devices, OwningDeviceInfoProvider, SmartSocket,
 };
 use smart_house::smart_home::SmartHouse;
 
 fn main() {
-    let socket = SmartSocket {};
-    let thermometer = SmartThermometer {};
-
     let mut house = SmartHouse::new("My House");
+    let socket = SmartSocket {};
 
     // Add rooms to the house
     house.add_room("Living Room");
@@ -30,11 +27,8 @@ fn main() {
     // Add the custom device to a room
     house.add_device("Living Room", custom_device);
 
-    let info_provider = BorrowingDeviceInfoProvider {
-        socket: &socket,
-        thermo: &thermometer,
-    };
-    let report = house.create_report(&info_provider);
+    let info_provider_1 = OwningDeviceInfoProvider { socket };
+    let report = house.create_report(&info_provider_1);
 
-    println!("Report:\n{}", report);
+    println!("Report #1:\n{}", report);
 }
