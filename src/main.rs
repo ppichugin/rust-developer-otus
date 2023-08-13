@@ -1,36 +1,80 @@
-use smart_house::devices;
-use smart_house::devices::{
-    DeviceBehavior, DeviceState, Devices, OwningDeviceInfoProvider, SmartSocket,
-};
-use smart_house::smart_home::SmartHouse;
+mod smart_socket;
+
+use std::io::{Write};
+use std::net::{TcpListener, TcpStream};
+use std::thread;
+use std::time::Duration;
+
+const ADDR: &str = "192.168.0.103:8095";
 
 fn main() {
-    let socket = SmartSocket {};
+    let server_thread = thread::spawn(|| {
+        start_tcp_server();
+    });
 
-    let mut house = SmartHouse::new("My House");
+    // Create a SmartSocketClient instance
+    let mut socket_client = smart_socket::SmartSocketClient::new(ADDR);
 
-    // Add rooms to the house
-    house.add_room("Living Room");
-    house.add_room("Kitchen");
+    let simulation_thread = thread::spawn(move || {
+        simulate_smart_socket_behavior(&mut socket_client);
+    });
 
-    // Add existing devices to rooms
-    house.add_device("Living Room", Devices::TV { power: true });
-    house.add_device("Living Room", Devices::Lights { brightness: 80 });
-    house.add_device("Kitchen", Devices::Oven { power: 2000 });
-    house.add_device("Kitchen", Devices::Microwave { power: 800 });
+    server_thread.join().unwrap();
+    simulation_thread.join().unwrap();
+}
 
-    // Register a new custom device
-    let custom_device = devices::register_device(
-        "Coffee-machine",
-        DeviceBehavior::BrewingCoffee,
-        DeviceState::On,
-    );
+fn start_tcp_server() {
+    let listener = TcpListener::bind(ADDR).expect("Failed to bind");
+    println!("TCP server started");
 
-    // Add the custom device to a room
-    house.add_device("Living Room", custom_device);
+    for stream in listener.incoming() {
+        match stream {
+            Ok(stream) => {
+                thread::spawn(move || {
+                    handle_client(stream);
+                });
+            }
+            Err(e) => {
+                eprintln!("Error: {}", e);
+            }
+        }
+    }
+}
 
-    let info_provider_1 = OwningDeviceInfoProvider { socket };
-    let report = house.create_report(&info_provider_1);
+fn handle_client(mut stream: TcpStream) {
+    let imitation_response = "Power: On\nConsumption: 100W";
+    let imitation_socket = smart_socket::ImitationSmartSocket::new(imitation_response);
 
-    println!("Report #1:\n{}", report);
+    for _ in 0..5 {
+        let response = imitation_socket.get_info();
+        stream.write_all(response.as_bytes()).expect("Failed to send response");
+        thread::sleep(Duration::from_secs(2));
+    }
+}
+
+fn simulate_smart_socket_behavior(socket_client: &mut smart_socket::SmartSocketClient) {
+    if let Err(err) = socket_client.connect() {
+        eprintln!("Error connecting to the smart socket: {}", err);
+        return;
+    }
+
+    for _ in 0..5 {
+        if let Err(err) = socket_client.send_command("turn_on") {
+            eprintln!("Error sending command: {}", err);
+            return;
+        }
+
+        println!("Smart socket is on");
+
+        thread::sleep(Duration::from_secs(2));
+
+        if let Err(err) = socket_client.send_command("turn_off") {
+            eprintln!("Error sending command: {}", err);
+            return;
+        }
+
+        println!("Smart socket is off");
+
+        thread::sleep(Duration::from_secs(2));
+    }
 }
