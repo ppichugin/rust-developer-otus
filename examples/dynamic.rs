@@ -1,5 +1,5 @@
 use std::borrow::Borrow;
-use visitor::dynamic_visitor::{Class, Database, Developer, Junior, ProjectElement, Senior, Test};
+use visitor::dynamicv::{Class, Database, Developer, Junior, ProjectElement, Senior, Test};
 
 fn main() {
     let mut class = Class::default();

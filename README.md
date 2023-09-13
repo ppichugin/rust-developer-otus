@@ -3,6 +3,7 @@
 ### This repository contains homeworks for OTUS Rust-Developer course divided in branches.
 
 ### Homework 10
+### Занятие "Rust и ООП"
 
 #### Task
 - Разработать статическую и динамическу реализацию одного из следующих паттернов проектирования:

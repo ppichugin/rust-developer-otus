@@ -1,4 +1,4 @@
-use visitor::static_visitor::{Class, Database, Junior, ProjectElement, Senior, Test};
+use visitor::staticv::{Class, Database, Junior, ProjectElement, Senior, Test};
 
 fn main() {
     let mut class = Class::default();
