@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "socket_bin_async",
+    "socket_lib_async",
+    "thermo_bin_async",
+    "thermo_lib_async",
+]
+resolver = "2"
