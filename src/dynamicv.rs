@@ -1,5 +1,9 @@
+use crate::{
+    Junior, Senior, JUNIOR_CLASS, JUNIOR_DB, JUNIOR_TEST, SENIOR_CLASS, SENIOR_DB, SENIOR_TEST,
+};
+
 #[derive(Default)]
-pub struct Class {
+pub struct Object {
     info: &'static str,
 }
 
@@ -18,7 +22,7 @@ pub trait ProjectElement {
     fn get_info(&self);
 }
 
-impl ProjectElement for Class {
+impl ProjectElement for Object {
     fn be_written(&mut self, v: &dyn Developer) {
         v.create_class(self);
     }
@@ -49,45 +53,41 @@ impl ProjectElement for Test {
 }
 
 pub trait Developer {
-    fn create_class(&self, element: &mut Class);
+    fn create_class(&self, element: &mut Object);
     fn create_db(&self, element: &mut Database);
     fn create_test(&self, element: &mut Test);
 }
 
-pub struct Junior;
-
 impl Developer for Junior {
-    fn create_class(&self, element: &mut Class) {
-        element.info = "Writing poor class...";
+    fn create_class(&self, element: &mut Object) {
+        element.info = JUNIOR_CLASS;
         element.get_info();
     }
 
     fn create_db(&self, element: &mut Database) {
-        element.info = "Drop database...";
+        element.info = JUNIOR_DB;
         element.get_info();
     }
 
     fn create_test(&self, element: &mut Test) {
-        element.info = "Creating not reliable test...";
+        element.info = JUNIOR_TEST;
         element.get_info();
     }
 }
 
-pub struct Senior;
-
 impl Developer for Senior {
-    fn create_class(&self, element: &mut Class) {
-        element.info = "Rewriting class after junior...";
+    fn create_class(&self, element: &mut Object) {
+        element.info = SENIOR_CLASS;
         element.get_info();
     }
 
     fn create_db(&self, element: &mut Database) {
-        element.info = "Fixing database...";
+        element.info = SENIOR_DB;
         element.get_info();
     }
 
     fn create_test(&self, element: &mut Test) {
-        element.info = "Creating reliable test...";
+        element.info = SENIOR_TEST;
         element.get_info();
     }
 }

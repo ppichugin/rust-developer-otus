@@ -1,18 +1,19 @@
-use visitor::staticv::{Class, Database, Junior, ProjectElement, Senior, Test};
+use visitor::staticv::{Database, Object, ProjectElement, Test};
+use visitor::{Junior, Senior};
 
 fn main() {
-    let mut class = Class::default();
+    let mut class = Object::default();
     let mut db = Database::default();
     let mut test = Test::default();
 
-    println!("Task has been assigned to junior");
-    println!("================================");
+    println!("-------------------");
+    println!("Junior is working:");
     class.be_written(&Junior);
     db.be_written(&Junior);
     test.be_written(&Junior);
 
-    println!("\nTask has been assigned to senior");
-    println!("================================");
+    println!("\n-------------------");
+    println!("Senior is working:");
     class.be_written(&Senior);
     db.be_written(&Senior);
     test.be_written(&Senior);
