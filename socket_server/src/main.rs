@@ -1,28 +1,26 @@
 use std::sync::Arc;
 
-use socket_lib::{Command, Response};
+use socket_client::{Command, Response};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpListener,
     sync::Mutex,
 };
 
+use rand::Rng;
+
 #[tokio::main]
 async fn main() {
-    let mut args = std::env::args();
-    args.next().unwrap();
-
-    let server_address = args.next().unwrap_or_else(|| "127.0.0.1:7890".into());
-
-    let listener = TcpListener::bind(server_address)
+    let listener = TcpListener::bind("127.0.0.1:7890")
         .await
         .expect("can't bind tcp listener");
 
     let smart_socket = Arc::new(Mutex::new(SmartSocket::default()));
+    println!("Waiting for connections... (Ctrl-C to stop)");
 
     while let Ok((mut stream, addr)) = listener.accept().await {
-        let peer = addr.to_string();
-        println!("Peer '{peer}' connected");
+        let host = addr.to_string();
+        println!("Host '{host}' connected");
 
         let smart_socket = smart_socket.clone();
         tokio::spawn(async move {
@@ -38,7 +36,7 @@ async fn main() {
                 };
             }
 
-            println!("Connection with {peer} lost. Waiting for new connections...");
+            println!("Connection with {host} lost. Waiting for new connections...");
         });
     }
 }
@@ -59,7 +57,7 @@ impl SmartSocket {
                 self.enabled = false;
                 Response::Ok
             }
-            Command::IsEnabled => {
+            Command::GetStatus => {
                 if self.enabled {
                     Response::Enabled
                 } else {
@@ -68,9 +66,10 @@ impl SmartSocket {
             }
             Command::GetPower => {
                 if self.enabled {
-                    Response::Power(220.5)
+                    let power: u32 = rand::thread_rng().gen_range(210.0..=230.0) as u32;
+                    Response::Power(power)
                 } else {
-                    Response::Power(0.0)
+                    Response::Power(0)
                 }
             }
             Command::Unknown => {

@@ -8,7 +8,7 @@ use tokio::{
 pub enum Command {
     TurnOff,
     TurnOn,
-    IsEnabled,
+    GetStatus,
     GetPower,
     Unknown,
 }
@@ -18,7 +18,7 @@ impl From<u8> for Command {
         match val {
             0 => Self::TurnOff,
             1 => Self::TurnOn,
-            2 => Self::IsEnabled,
+            2 => Self::GetStatus,
             3 => Self::GetPower,
             _ => Self::Unknown,
         }
@@ -30,7 +30,7 @@ impl From<Command> for u8 {
         match cmd {
             Command::TurnOff => 0,
             Command::TurnOn => 1,
-            Command::IsEnabled => 2,
+            Command::GetStatus => 2,
             Command::GetPower => 3,
             Command::Unknown => 255,
         }
@@ -41,7 +41,7 @@ pub enum Response {
     Ok,
     Enabled,
     Disabled,
-    Power(f32),
+    Power(u32),
     Unknown,
 }
 
@@ -54,7 +54,7 @@ impl From<[u8; 5]> for Response {
             [3, ..] => {
                 let mut buf = [0u8; 4];
                 buf.copy_from_slice(&bytes[1..]);
-                Self::Power(f32::from_be_bytes(buf))
+                Self::Power(u32::from_be_bytes(buf))
             }
             _ => Self::Unknown,
         }

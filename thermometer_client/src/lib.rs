@@ -4,13 +4,11 @@ use std::{
         atomic::{AtomicBool, Ordering},
         Arc,
     },
-    time::Duration,
 };
 
 use tokio::{
     net::{ToSocketAddrs, UdpSocket},
     sync::Mutex,
-    time,
 };
 
 pub struct SmartThermo {
@@ -27,8 +25,6 @@ impl SmartThermo {
         let temperature_clone = temperature.clone();
         let finished_clone = finished.clone();
 
-        let timeout = Duration::from_secs(1);
-
         tokio::spawn(async move {
             loop {
                 if finished_clone.load(Ordering::SeqCst) {
@@ -36,8 +32,23 @@ impl SmartThermo {
                 }
 
                 let mut buf = [0; 4];
-                if let Err(e) = time::timeout(timeout, socket.recv_from(&mut buf)).await {
-                    println!("can't receive datagram: {e}");
+                socket.readable().await.unwrap();
+
+                let mut received_len = 0;
+
+                let buf_len = buf.len();
+                while received_len < buf_len {
+                    match socket.recv_from(&mut buf[received_len..buf_len]).await {
+                        Ok((len, _)) => received_len += len,
+                        Err(error) => {
+                            println!("Can't receive datagram: {:?}", error);
+                            break;
+                        }
+                    }
+                }
+
+                if buf.len() != 4 {
+                    println!("incorrect datagram received");
                     continue;
                 }
 

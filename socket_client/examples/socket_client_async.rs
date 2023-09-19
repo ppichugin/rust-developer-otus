@@ -1,6 +1,6 @@
 use std::io;
 
-use socket_lib_async::{Command, SmartSocketClient};
+use socket_client::{Command, SmartSocketClient};
 
 #[tokio::main]
 async fn main() {
@@ -9,6 +9,7 @@ async fn main() {
     loop {
         show_menu();
         let input = read_input();
+        std::process::Command::new("clear").status().unwrap();
 
         let response = match input {
             Some(command) => client.run_command(command).await.unwrap(),
@@ -18,19 +19,17 @@ async fn main() {
             }
         };
 
-        println!("------------------");
         println!("Response: {response}");
     }
 }
 
 fn show_menu() {
-    println!();
-    println!("------------------");
+    println!("\n------------------");
     println!("Select action:");
     println!("1) turn off");
     println!("2) turn on");
-    println!("3) is enabled");
-    println!("4) power");
+    println!("3) status");
+    println!("4) power level");
     println!("_) exit");
 }
 
@@ -40,7 +39,7 @@ fn read_input() -> Option<Command> {
     let cmd = match input.trim() {
         "1" => Command::TurnOff,
         "2" => Command::TurnOn,
-        "3" => Command::IsEnabled,
+        "3" => Command::GetStatus,
         "4" => Command::GetPower,
         _ => return None,
     };
