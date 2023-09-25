@@ -1,7 +1,23 @@
 pub mod devices;
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum AddRoomError {
+    #[error("Room with name `{0}` already exist")]
+    AlreadyExist(String),
+}
+
+#[derive(Error, Debug)]
+pub enum RemoveRoomError {
+    #[error("Room not found!")]
+    RoomNotFound,
+    #[error("Room `{0}` has devices. Remove devices before remove room")]
+    RoomHasDevices(String),
+}
 
 pub mod smart_home {
     use crate::devices::{DeviceBehavior, DeviceInfoProvider, DeviceState, Devices};
+    use crate::{AddRoomError, RemoveRoomError};
 
     pub struct SmartHouse {
         pub name: String,
@@ -16,15 +32,32 @@ pub mod smart_home {
             }
         }
 
-        pub fn add_room(&mut self, name: &str) {
-            self.rooms.push(Room {
-                name: name.to_string(),
-                devices: Vec::new(),
-            });
+        pub fn add_room(&mut self, name: &str) -> Result<(), AddRoomError> {
+            if self.rooms.iter().any(|room| room.name == name) {
+                Err(AddRoomError::AlreadyExist(name.to_string()))
+            } else {
+                self.rooms.push(Room {
+                    name: name.to_string(),
+                    devices: Vec::new(),
+                });
+                Ok(())
+            }
         }
 
-        pub fn remove_room(&mut self, name: &str) {
-            self.rooms.retain(|room| room.name != name);
+        pub fn remove_room(&mut self, name: &str) -> Result<(), RemoveRoomError> {
+            let room_index = self.rooms.iter().position(|room| room.name == name);
+            if let Some(position) = room_index {
+                let room = self.rooms.get(position).unwrap();
+
+                if !room.devices.is_empty() {
+                    Err(RemoveRoomError::RoomHasDevices(name.to_string().clone()))
+                } else {
+                    self.rooms.remove(position);
+                    Ok(())
+                }
+            } else {
+                Err(RemoveRoomError::RoomNotFound)
+            }
         }
 
         pub fn get_rooms(&self) -> Vec<&str> {

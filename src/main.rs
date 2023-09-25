@@ -13,14 +13,24 @@ fn main() {
     let mut house = SmartHouse::new("My House");
 
     // Add rooms to the house
-    house.add_room("Living Room");
-    house.add_room("Kitchen");
+    let _ = house.add_room("Living Room");
+    let _ = house.add_room("Kitchen");
+
+    // Add the same room twice
+    if let Err(e) = house.add_room("Living Room") {
+        println!("Error: {}\n", e);
+    }
 
     // Add existing devices to rooms
     house.add_device("Living Room", Devices::TV { power: true });
     house.add_device("Living Room", Devices::Lights { brightness: 80 });
     house.add_device("Kitchen", Devices::Oven { power: 2000 });
     house.add_device("Kitchen", Devices::Microwave { power: 800 });
+
+    // Remove room twice with devices
+    if let Err(e) = house.remove_room("Living Room") {
+        println!("Error: {}\n", e);
+    }
 
     // Register a new custom device
     let custom_device = devices::register_device(
