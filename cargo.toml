@@ -8,3 +8,4 @@ name = "smart_house"
 path = "src/lib.rs"
 
 [dependencies]
+thiserror = { version = "1.0" }
