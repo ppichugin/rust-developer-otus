@@ -1,7 +1,4 @@
-[workspace]
-resolver = "2"
-
-members = [
-    "command",
-    "builder",
-]
+[package]
+name = "smart-house"
+version = "0.1.0"
+edition = "2021"
