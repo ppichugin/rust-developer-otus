@@ -55,8 +55,8 @@ fn spawn(listener: TcpListener) -> Result<Server, std::io::Error> {
             .route("/healthcheck", web::get().to(healthcheck))
             .route("/append", web::post().to(append_to_state))
     })
-        .listen(listener)?
-        .run();
+    .listen(listener)?
+    .run();
     Ok(server)
 }
 
