@@ -34,8 +34,8 @@ pub fn get_socket_status(address: SocketAddr) -> Result<String, ClientError> {
 }
 
 pub fn get_thermo_status(_address: SocketAddr) -> Result<String, ClientError> {
-    // if not connected to that address -> connect and keep athread for connection, check the thread on request
+    // if not connected to that address -> connect and keep a thread for connection, check the thread on request
     Err(ClientError::Unknown(
-        "UDP Thermomemter is not supported".into(),
+        "UDP Thermometer is not supported".into(),
     ))
 }
