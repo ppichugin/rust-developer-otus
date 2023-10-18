@@ -98,6 +98,25 @@ impl Repository for InMemoryRepository {
         Ok(new_room)
     }
 
+    fn delete_room(&self, name: RoomName) -> Result<(), DeleteError> {
+        if self.returns_error {
+            return Err(DeleteError::Unknown);
+        }
+
+        let mut rooms = match self.rooms.lock() {
+            Ok(rooms) => rooms,
+            _ => return Err(DeleteError::Unknown),
+        };
+
+        let del_idx = match rooms.iter().position(|r| r.name == name) {
+            Some(idx) => idx,
+            None => return Err(DeleteError::NotFound),
+        };
+
+        rooms.remove(del_idx);
+        Ok(())
+    }
+
     fn fetch_room(&self, name: RoomName) -> Result<RoomInfo, FetchError> {
         if self.returns_error {
             return Err(FetchError::Unknown);
@@ -125,25 +144,6 @@ impl Repository for InMemoryRepository {
         };
 
         Ok(rooms.to_vec())
-    }
-
-    fn delete_room(&self, name: RoomName) -> Result<(), DeleteError> {
-        if self.returns_error {
-            return Err(DeleteError::Unknown);
-        }
-
-        let mut rooms = match self.rooms.lock() {
-            Ok(rooms) => rooms,
-            _ => return Err(DeleteError::Unknown),
-        };
-
-        let del_idx = match rooms.iter().position(|r| r.name == name) {
-            Some(idx) => idx,
-            None => return Err(DeleteError::NotFound),
-        };
-
-        rooms.remove(del_idx);
-        Ok(())
     }
 
     fn add_device(
@@ -190,6 +190,30 @@ impl Repository for InMemoryRepository {
         }
     }
 
+    fn delete_device(
+        &self,
+        room_name: RoomName,
+        device_name: DeviceName,
+    ) -> Result<(), DeleteError> {
+        if self.returns_error {
+            return Err(DeleteError::Unknown);
+        }
+
+        let mut rooms = match self.rooms.lock() {
+            Ok(rooms) => rooms,
+            _ => return Err(DeleteError::Unknown),
+        };
+
+        match rooms.iter_mut().find(|r| r.name == room_name) {
+            Some(room) => match room.devices.iter().position(|d| d.name == device_name) {
+                Some(idx) => room.devices.remove(idx),
+                None => return Err(DeleteError::NotFound),
+            },
+            None => return Err(DeleteError::NotFound),
+        };
+        Ok(())
+    }
+
     fn fetch_device(
         &self,
         room_name: RoomName,
@@ -227,29 +251,5 @@ impl Repository for InMemoryRepository {
             Some(room) => Ok(room.devices.to_vec()),
             _ => Err(FetchError::NotFound),
         }
-    }
-
-    fn delete_device(
-        &self,
-        room_name: RoomName,
-        device_name: DeviceName,
-    ) -> Result<(), DeleteError> {
-        if self.returns_error {
-            return Err(DeleteError::Unknown);
-        }
-
-        let mut rooms = match self.rooms.lock() {
-            Ok(rooms) => rooms,
-            _ => return Err(DeleteError::Unknown),
-        };
-
-        match rooms.iter_mut().find(|r| r.name == room_name) {
-            Some(room) => match room.devices.iter().position(|d| d.name == device_name) {
-                Some(idx) => room.devices.remove(idx),
-                None => return Err(DeleteError::NotFound),
-            },
-            None => return Err(DeleteError::NotFound),
-        };
-        Ok(())
     }
 }
