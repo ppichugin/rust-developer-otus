@@ -62,6 +62,6 @@ fn spawn(listener: TcpListener) -> Result<Server, std::io::Error> {
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    let listener = TcpListener::bind("127.0.0.1:8888").expect("Undable to bind to port");
+    let listener = TcpListener::bind("127.0.0.1:8888").expect("Unable to bind to port");
     spawn(listener)?.await
 }
