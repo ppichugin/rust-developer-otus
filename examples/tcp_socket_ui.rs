@@ -6,10 +6,10 @@ use smart_house_gui::device::tcp_socket_client;
 fn main() {
     let mut options = eframe::NativeOptions::default();
     options.resizable = false;
-    options.initial_window_size = Some(egui::Vec2::new(300.0, 600.0));
+    options.initial_window_size = Some(egui::Vec2::new(400.0, 600.0));
 
     eframe::run_native(
-        "TCP Smart Socket controller",
+        "TCP Smart Socket UI",
         options,
         Box::new(|_cc| Box::new(MyApp::default())),
     );
@@ -35,12 +35,12 @@ impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
-                ui.label("IP:PORT ");
+                ui.label("Source (IP:PORT) ");
                 ui.text_edit_singleline(&mut self.address);
             });
 
             ui.horizontal(|ui| {
-                let switch_btn = ui.button("Turn on / off").clicked();
+                let switch_btn = ui.button("Turn ON/OFF").clicked();
                 if switch_btn {
                     self.is_on = !self.is_on;
                     let next_cmd = if self.is_on { "SET0" } else { "SET1" };
@@ -54,7 +54,7 @@ impl eframe::App for MyApp {
                     );
                     self.messages.push(message);
                 }
-                let status_btn = ui.button("Get status").clicked();
+                let status_btn = ui.button("Status?").clicked();
                 if status_btn {
                     let mut message = Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
                     message.push('\n');

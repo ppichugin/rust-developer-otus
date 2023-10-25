@@ -7,12 +7,12 @@ pub fn query(address: impl ToSocketAddrs, query: &str) -> Result<String, DeviceE
     let mut stream =
         TcpStream::connect(&address).map_err(|e| DeviceError::SocketError(e.to_string()))?;
 
-    // write a command to get status
+    // write a command to get status of the device
     stream
         .write_all(query.as_bytes())
         .map_err(|e| DeviceError::SocketError(e.to_string()))?;
 
-    // unpack the result
+    // unpack the result from the device
     let mut buf: Vec<u8> = Vec::new();
     let mut reader = BufReader::new(&stream);
     reader

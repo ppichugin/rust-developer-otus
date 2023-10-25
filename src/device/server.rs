@@ -5,9 +5,7 @@ use std::net::{TcpListener, TcpStream};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-// socket server maps Tcp requests from multiple users to
-// socket device commandsto simulate the device
-//
+// socket server maps TCP requests from multiple users
 pub struct SmartSocketServer {
     pub device: Arc<Mutex<SmartSocket>>,
     pub listener: TcpListener,
@@ -69,7 +67,7 @@ fn handle_smart_device(
 
         println!("[SmartDevice] {}: {}", client_addr, &response);
 
-        // send response back to the strem
+        // send response back to the stream
         response.push('\n');
         stream.write_all(response.as_bytes())?;
     }
