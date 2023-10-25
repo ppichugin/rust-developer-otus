@@ -1,5 +1,6 @@
 pub mod mock;
 pub mod server;
+pub mod tcp_socket_client;
 
 use thiserror::Error;
 
