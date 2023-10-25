@@ -1,20 +1,10 @@
 [package]
-name = "smart_house"
+name = "smart_house_gui"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-thiserror = "*"
-clap = {version = "4.4.6", features = ["derive"] }
-env_logger = "0.9"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-actix-web = "4"
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 
 [dev-dependencies]
 # test only deps
-float-cmp = "*"
-reqwest = "0.11.22"
-rand = "0.8.5"
