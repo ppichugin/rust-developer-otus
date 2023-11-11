@@ -15,7 +15,7 @@
 - [x] Homework 10: [Паттерны проектирования](https://github.com/ppichugin/rust-developer-otus/tree/HW10)
 - [x] Homework 11: [Крейт thiserror](https://github.com/ppichugin/rust-developer-otus/tree/HW11)
 - [x] Homework 12: [Rust паттерны](https://github.com/ppichugin/rust-developer-otus/tree/HW12)
-- [x] Homework 13: [Веб-сервер "умного дома"](https://github.com/ppichugin/rust-developer-otus/tree/HW013)
+- [x] Homework 13: [Веб-сервер "умного дома"](https://github.com/ppichugin/rust-developer-otus/tree/HW13)
 - [x] Homework 14: [Графический интерфейс "Умной розетки"](https://github.com/ppichugin/rust-developer-otus/tree/HW14)
 - [x] Homework 15: [Динамическая библиотека "Умная розетка"](https://github.com/ppichugin/rust-developer-otus/tree/HW15)
 - [ ] Homework 16: [Проектная работа]()
