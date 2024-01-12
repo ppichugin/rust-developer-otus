@@ -18,5 +18,3 @@
 - [x] Homework 13: [Веб-сервер "умного дома"](https://github.com/ppichugin/rust-developer-otus/tree/HW13)
 - [x] Homework 14: [Графический интерфейс "Умной розетки"](https://github.com/ppichugin/rust-developer-otus/tree/HW14)
 - [x] Homework 15: [Динамическая библиотека "Умная розетка"](https://github.com/ppichugin/rust-developer-otus/tree/HW15)
-- [ ] Homework 16: [Проектная работа]()
-
